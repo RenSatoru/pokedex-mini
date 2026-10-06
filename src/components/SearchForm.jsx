@@ -1,37 +1,69 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { REGIONS, POKEMON_TYPES, TYPE_COLORS } from "../config.js";
+import { capitalize } from "../utils.js";
 
-function SearchForm() {
-  const [query, setQuery] = useState("");
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    const name = query.trim().toLowerCase();
-    if (name === "") {
-      setError("Type a Pokémon name first.");
-      return;
-    }
-    setError(null);
-    navigate(`/pokemon/${name}`);
-  }
-
+function SearchForm({
+  search,
+  setSearch,
+  selectedRegion,
+  setSelectedRegion,
+  selectedType,
+  setSelectedType,
+}) {
   return (
-    <div className="search">
-      <form onSubmit={handleSubmit} className="search-form">
+    <div className="search-portal">
+      <div className="search-controls">
         <input
           type="text"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search a Pokémon by name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search Pokémon by name or number (#0838)..."
           className="search-input"
         />
-        <button type="submit" className="search-button">
-          Search
-        </button>
-      </form>
-      {error && <p className="status status-error">{error}</p>}
+
+        <select
+          value={selectedRegion}
+          onChange={(e) => setSelectedRegion(Number(e.target.value))}
+          className="portal-select"
+        >
+          {REGIONS.map((region, index) => (
+            <option key={region.name} value={index}>
+              {region.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+          className="portal-select"
+        >
+          <option value="all">All Element Types</option>
+          {POKEMON_TYPES.filter((t) => t !== "all").map((type) => (
+            <option key={type} value={type}>
+              {capitalize(type)} Type
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Quick Type Selection Pills */}
+      <div className="type-pills-bar">
+        {POKEMON_TYPES.map((type) => (
+          <button
+            key={type}
+            onClick={() => setSelectedType(type)}
+            className={`type-pill-btn ${selectedType === type ? "active" : ""}`}
+            style={{
+              backgroundColor:
+                type === "all"
+                  ? "#313131"
+                  : TYPE_COLORS[type] || "#777",
+            }}
+          >
+            {type === "all" ? "ALL TYPES" : type.toUpperCase()}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
